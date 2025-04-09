@@ -47,6 +47,22 @@
             @Html.DisplayFor(model => model.RentalPricePerDay)
         </dd>
     </dl>
+    @if (Model.CarPictures != null && Model.CarPictures.Any())
+    {
+        <h4>Car Pictures</h4>
+        <div class="row">
+            @foreach (var picture in Model.CarPictures)
+            {
+                <div class="col-md-3">
+                    <img src="@picture.PictureUrl" alt="Car Picture" class="img-fluid" />
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No pictures available.</p>
+    }
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
