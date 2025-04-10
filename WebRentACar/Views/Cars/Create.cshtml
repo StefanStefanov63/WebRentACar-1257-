@@ -37,7 +37,7 @@
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
-                @* @//<span asp-validation-for="Description" class="text-danger"></span> *@
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="RentalPricePerDay" class="control-label">Rental Price Per Day</label>
@@ -60,16 +60,3 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}@if (TempData["SuccessMessage"] != null)
-	{
-		<script>
-			$(document).ready(function () {
-				alert("@TempData["SuccessMessage"]");
-			});
-		</script>
-	}
-}

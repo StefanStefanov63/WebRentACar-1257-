@@ -7,10 +7,26 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebRentACar.styles.css" asp-append-version="true" />
+    <style>
+        /* Set background color of the whole page to light gray */
+        body {
+            background-color: #808080; /* Light gray color */
+            color: #333; /* Ensure text color is dark enough for readability */
+        }
+
+        /* Optional: You can style the content area separately if you want a white background for better contrast */
+        .container {
+            background-color: #ffffff; /* White background for content area */
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebRentACar</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -35,12 +51,23 @@
                                         <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Index">See Cars</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact">Add Car</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Create">Add Car</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#sublistReservations" aria-expanded="false" aria-controls="sublistCars">
+                                Reservations <span class="bi bi-caret-down-fill"></span>
+                            </a>
+                            <div class="collapse dropdown-menu" id="sublistReservations">
+                                <ul class="list-unstyled">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Index">See my Reservations</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Change Car</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Create">Add Reservation</a>
                                     </li>
-
                                 </ul>
                             </div>
                         </li>

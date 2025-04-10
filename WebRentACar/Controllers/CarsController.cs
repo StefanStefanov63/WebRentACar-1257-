@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using WebRentACar.Data;
 using WebRentACar.Models;
 
@@ -89,102 +91,22 @@ namespace WebRentACar.Controllers
             }
             _context.Add(car);
             await _context.SaveChangesAsync();
-            //
-            TempData["SuccessMessage"] = "Car added successfully!";
-            if (pictures != null && pictures.Length > 0)
-            {
-                // Folder to save the uploaded files (now 'uploads' instead of 'images')
-                var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadDir);  // Ensure directory exists
-
-                foreach (var picture in pictures)
-                {
-                    if (picture.Length > 0)
-                    {
-                        var fileName = Path.GetFileName(picture.FileName);
-                        var filePath = Path.Combine(uploadDir, fileName);
-
-                        // Save the file to the server
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await picture.CopyToAsync(stream);
-                        }
-
-                        // Save file URL to the database (Correct URL as "/uploads/")
-                        var fileUrl = "/uploads/" + fileName;  // Update to use /uploads/
-                        var pictureEntity = new CarPicture
-                        {
-                            PictureUrl = fileUrl,
-                            CarId = car.Id
-                        };
-                        _context.CarPictures.Add(pictureEntity);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            // Handle picture uploads if any
-     //       if (pictures != null)
-     //           {
-     //           string folderPath = "images/";
-     //           foreach (var file in pictures)
-     //               {
-     //               //if (!file.ContentType.StartsWith("image/"))
-     //               //{
-
-     //               folderPath += Guid.NewGuid().ToString() + "_" + file.FileName;
-
-     //               string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folderPath);
-
-     //               await file.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
-
-     //               folderPath = "/" + folderPath;
-     //               //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-     //               //        var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-
-     //               //        if (!Directory.Exists(uploadPath))
-     //               //        {
-     //               //            Directory.CreateDirectory(uploadPath);
-     //               //        }
-
-     //               //        var filePath = Path.Combine(uploadPath, fileName);
-     //               //        using (var stream = new FileStream(filePath, FileMode.Create))
-     //               //        {
-     //               //            await file.CopyToAsync(stream);
-     //               //        }
-					
-					//var carPicture = new CarPicture
-     //                   {
-     //                       PictureUrl = folderPath,
-     //                       CarId = car.Id
-					//		};
-
-     //                       _context.CarPictures.Add(carPicture);
-     //                   //}
-     //               }
-
-     //               await _context.SaveChangesAsync();
-     //           }
-            
-            //ViewData["CarBrands"] = new SelectList(_context.CarBrands.ToList(), "Id", "Name", car.CarBrand);
-            return View(car);
+            await AddPictureAsync(pictures, car.Id);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Cars/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var car = await _context.Cars.FindAsync(id);
+            var car = await _context.Cars
+                .Include(c => c.CarBrand)
+                .Include(p => p.CarPictures)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (car == null)
             {
                 return NotFound();
             }
-            ViewData["CarBrandId"] = new SelectList(_context.CarBrands, "Id", "Name", car.CarBrandId);
+            ViewData["CarBrands"] = new SelectList(await _context.CarBrands.ToListAsync(), "Id", "Name");
             return View(car);
         }
 
@@ -193,19 +115,40 @@ namespace WebRentACar.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CarBrandId,Model,Year,PassengerSeats,Description,RentalPricePerDay")] Car car)
+        public async Task<IActionResult> Edit(int id, int CarBrandId, string Model, int Year, int PassengerSeats, string Description, double RentalPricePerDay, IFormFile[] pictures, string newCarBrand)
         {
-            if (id != car.Id)
+            var car = _context.Cars.FirstOrDefault(x => x.Id == id);
+            if (car == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
-            {
+            
                 try
                 {
+                    car.CarBrandId = CarBrandId;
+                    car.Model = Model;
+                    car.Year = Year;
+                    car.PassengerSeats = PassengerSeats;
+                    car.Description = Description;
+                    car.RentalPricePerDay = RentalPricePerDay;
+
+                    if (!string.IsNullOrEmpty(newCarBrand))
+                    {
+                        // Add new car brand if it doesn't exist
+                        var existingBrand = await _context.CarBrands
+                            .FirstOrDefaultAsync(b => b.Name.ToLower() == newCarBrand.ToLower());
+
+                        if (existingBrand == null)
+                        {
+                            var carBrand = new CarBrand { Name = newCarBrand };
+                            _context.CarBrands.Add(carBrand);
+                            await _context.SaveChangesAsync();
+                            car.CarBrandId = carBrand.Id; // Associate the new car brand with the car
+                        }
+                    }
                     _context.Update(car);
                     await _context.SaveChangesAsync();
+                await AddPictureAsync(pictures, id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -219,9 +162,6 @@ namespace WebRentACar.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
-            }
-            ViewData["CarBrandId"] = new SelectList(_context.CarBrands, "Id", "Name", car.CarBrandId);
-            return View(car);
         }
 
         // GET: Cars/Delete/5
@@ -234,6 +174,7 @@ namespace WebRentACar.Controllers
 
             var car = await _context.Cars
                 .Include(c => c.CarBrand)
+                .Include(p => p.CarPictures)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (car == null)
             {
@@ -257,7 +198,61 @@ namespace WebRentACar.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> DeletePictureAsync(int pictureId, int carId)
+        {
+            var picture = await _context.CarPictures.FindAsync(pictureId);
+            if (picture != null)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", picture.PictureUrl.TrimStart('/'));
 
+                // Delete the file if it exists
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                 _context.CarPictures.Remove(picture);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Edit", new { id = carId });
+        }
+        public async Task AddPictureAsync(IFormFile[] pictures, int carId)
+        {
+            if(pictures != null && pictures.Length > 0)
+            {
+                // Folder to save the uploaded files (now 'uploads' instead of 'images')
+                var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                Directory.CreateDirectory(uploadDir);  // Ensure directory exists
+
+                foreach (var picture in pictures)
+                {
+                    if (picture.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(picture.FileName)}";
+                        var filePath = Path.Combine(uploadDir, fileName);
+
+                        // Save the file to the server
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await picture.CopyToAsync(stream);
+                        }
+
+                        // Save file URL to the database (Correct URL as "/uploads/")
+                        var fileUrl = "/uploads/" + fileName;  // Update to use /uploads/
+                        
+                            var pictureEntity = new CarPicture
+                            {
+                                PictureUrl = fileUrl,
+                                CarId = carId
+                            };
+                            _context.CarPictures.Add(pictureEntity);
+                        
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+        }
         private bool CarExists(int id)
         {
             return _context.Cars.Any(e => e.Id == id);

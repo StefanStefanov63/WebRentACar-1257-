@@ -47,6 +47,9 @@ namespace WebRentACar.Data
 				.HasIndex(u => u.Email)
 				.IsUnique();
 
+            modelBuilder.Entity<CarPicture>()
+                .HasIndex(u => u.PictureUrl)
+                .IsUnique();
             modelBuilder.Entity<RentACarUser>()
            .ToTable("AspNetUsers")
            .HasDiscriminator<string>("Discriminator")

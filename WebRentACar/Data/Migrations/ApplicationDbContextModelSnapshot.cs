@@ -229,6 +229,9 @@ namespace WebRentACar.Data.Migrations
 
                     b.HasIndex("CarId");
 
+                    b.HasIndex("PictureUrl")
+                        .IsUnique();
+
                     b.ToTable("CarPictures");
                 });
 
