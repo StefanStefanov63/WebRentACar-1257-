@@ -26,10 +26,43 @@ namespace WebRentACar.Controllers
         }
 
         // GET: Cars
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Cars.Include(c => c.CarBrand);
-            return View(await applicationDbContext.ToListAsync());
+            var cars = await _context.Cars.Include(c => c.CarBrand).Include(p => p.CarPictures).ToListAsync();
+            ViewData["CarBrands"] = new SelectList(_context.CarBrands.ToList(), "Id", "Name");
+            return View( cars);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(int CarBrandId, int? Year, string? Model, int Limit)
+        {
+            var cars = await _context.Cars.Include(c => c.CarBrand).Include(p => p.CarPictures).ToListAsync();
+            if (ModelState.IsValid)
+            {
+
+                // Apply filters based on selected options
+                if (CarBrandId > 0)
+                {
+                    cars = cars.Where(c => c.CarBrand.Id == CarBrandId).ToList();
+                }
+
+                if (Year.HasValue)
+                {
+                    cars = cars.Where(c => c.Year == Year).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(Model))
+                {
+                    cars = cars.Where(c => c.Model.Contains(Model)).ToList();
+                }
+
+                if (Limit > 0)
+                    cars = cars.Take(Limit).ToList();
+
+                ViewData["CarBrands"] = new SelectList(_context.CarBrands.ToList(), "Id", "Name");
+            }
+            return View(cars);
         }
 
         // GET: Cars/Details/5
@@ -64,35 +97,31 @@ namespace WebRentACar.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int CarBrandId,string Model,int Year,int PassengerSeats,string Description,double RentalPricePerDay, IFormFile[] pictures, string newCarBrand)
+        public async Task<IActionResult> Create([Bind("Id,CarBrandId,Model,Year,PassengerSeats,Description,RentalPricePerDay")] Car car ,IFormFile[] pictures, string newCarBrand)
         {
-            Car car = new Car
+            if (ModelState.IsValid)
             {
-                CarBrandId = CarBrandId,
-                Model = Model,
-                Year = Year,
-                PassengerSeats = PassengerSeats,
-                Description = Description,
-                RentalPricePerDay = RentalPricePerDay
-            };
-            if (!string.IsNullOrEmpty(newCarBrand))
-            {
-                // Add new car brand if it doesn't exist
-                var existingBrand = await _context.CarBrands
-                    .FirstOrDefaultAsync(b => b.Name.ToLower() == newCarBrand.ToLower());
-
-                if (existingBrand == null)
+                if (!string.IsNullOrEmpty(newCarBrand))
                 {
-                    var carBrand = new CarBrand { Name = newCarBrand };
-                    _context.CarBrands.Add(carBrand);
-                    await _context.SaveChangesAsync();
-                    car.CarBrandId = carBrand.Id; // Associate the new car brand with the car
+                    // Add new car brand if it doesn't exist
+                    var existingBrand = await _context.CarBrands
+                        .FirstOrDefaultAsync(b => b.Name.ToLower() == newCarBrand.ToLower());
+
+                    if (existingBrand == null)
+                    {
+                        var carBrand = new CarBrand { Name = newCarBrand };
+                        _context.CarBrands.Add(carBrand);
+                        await _context.SaveChangesAsync();
+                        car.CarBrandId = carBrand.Id; // Associate the new car brand with the car
+                    }
                 }
+                _context.Add(car);
+                await _context.SaveChangesAsync();
+                await AddPictureAsync(pictures, car.Id);
+                return RedirectToAction(nameof(Index));
             }
-            _context.Add(car);
-            await _context.SaveChangesAsync();
-            await AddPictureAsync(pictures, car.Id);
-            return RedirectToAction(nameof(Index));
+            ViewData["CarBrands"] = new SelectList(_context.CarBrands.ToList(), "Id", "Name");
+            return View(car);
         }
 
         // GET: Cars/Edit/5
@@ -189,7 +218,13 @@ namespace WebRentACar.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var car = await _context.Cars.FindAsync(id);
+            var car = await _context.Cars.
+                Include(p => p.CarPictures)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            foreach (var picture in car.CarPictures)
+            {
+                 await DeletePictureAsync(picture.Id, id);
+            }
             if (car != null)
             {
                 _context.Cars.Remove(car);
