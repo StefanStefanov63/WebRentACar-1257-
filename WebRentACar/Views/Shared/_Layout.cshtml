@@ -57,16 +57,34 @@
                             </div>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#sublistReservations" aria-expanded="false" aria-controls="sublistCars">
+                            <a class="nav-link dropdown-toggle text-dark" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#sublistReservations" aria-expanded="false" aria-controls="sublistReservations">
                                 Reservations <span class="bi bi-caret-down-fill"></span>
                             </a>
                             <div class="collapse dropdown-menu" id="sublistReservations">
                                 <ul class="list-unstyled">
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Index">See my Reservations</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Reservations" asp-action="Index">See my Reservations</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Cars" asp-action="Create">Add Reservation</a>
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Reservations" asp-action="Create">Add Reservation</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#sublistCarBrands" aria-expanded="false" aria-controls="sublistCarBrands">
+                                Car Brands <span class="bi bi-caret-down-fill"></span>
+                            </a>
+                            <div class="collapse dropdown-menu" id="sublistCarBrands">
+                                <ul class="list-unstyled">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="CarBrands" asp-action="Index">See Car Brands</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="CarBrands" asp-action="Delete">Delete Car Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="CarBrands" asp-action="Create">Add Car Brand</a>
                                     </li>
                                 </ul>
                             </div>

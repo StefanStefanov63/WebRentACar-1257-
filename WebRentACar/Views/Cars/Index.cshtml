@@ -12,45 +12,46 @@
 
 </style>
 <h3 class="display-4">All Cars</h3>
-<form method="post" class="mb-4">
-    <div class="form-row">
-        <!-- Filter by CarBrand -->
-        <div class="form-group col-md-3">
-            <label for="CarBrandId">Car Brand</label>
-            <select id="CarBrandId" name="CarBrandId" class="form-control" asp-items="ViewBag.CarBrands">
-                <option value="0">Select Car Brand</option>
-            </select>
-        </div>
+<button class="btn btn-secondary mb-4" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+    Toggle Filter
+</button>
 
-        <!-- Filter by Year -->
-        <div class="form-group col-md-3">
-            <label for="Year">Year</label>
-            <input type="number" id="Year" name="Year" class="form-control" placeholder="Enter Year" />
-            @* <span asp-validation-for="" class="text-danger"></span> *@
-        </div>
+<!-- Collapsible filter form -->
+<div class="collapse" id="filterCollapse">
+    <form method="post" class="mb-4">
+        <div class="form-row">
+            <!-- Filter by CarBrand -->
+            <div class="form-group col-md-2">
+                <label for="CarBrandId">Car Brand</label>
+                <select id="CarBrandId" name="CarBrandId" class="form-control" asp-items="ViewBag.CarBrands">
+                    <option value="0">Select Car Brand</option>
+                </select>
+            </div>
 
-        <!-- Filter by Model -->
-        <div class="form-group col-md-3">
-            <label for="Model">Model</label>
-            <input type="text" id="Model" name="Model" class="form-control" placeholder="Enter model" />
-        </div>
+            <!-- Filter by Model -->
+            <div class="form-group col-md-2">
+                <label for="Model">Model</label>
+                <input type="text" id="Model" name="Model" class="form-control" placeholder="Enter model" />
+            </div>
 
-        <!-- Filter by Car Entries Limit -->
-        <div class="form-group col-md-3">
-            <label for="Limit">Entries Limit</label>
-            <select id="Limit" name="Limit" class="form-control">
-                <option value="10">10</option>
-                <option value="50" selected>50</option>
-                <option value="100">100</option>
-                <option value="0">All</option>
-            </select>
-        </div>
+            <!-- Filter by Car Entries Limit -->
+            <div class="form-group col-md-2">
+                <label for="Limit">Entries Limit</label>
+                <select id="Limit" name="Limit" class="form-control">
+                    <option value="10">10</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="0">All</option>
+                </select>
+            </div>
 
-        <div class="col-md-12 text-center mt-3">
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <!-- Filter Submit Button -->
+            <div class="col-md-2 text-center mt-3">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            </div>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 <div class="row">
     @foreach (var car in Model)
     {

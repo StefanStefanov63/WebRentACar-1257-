@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WebRentACar.Data;
 using WebRentACar.Models;
 
@@ -56,13 +58,10 @@ namespace WebRentACar.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] CarBrand carBrand)
         {
-            if (ModelState.IsValid)
-            {
                 _context.Add(carBrand);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(carBrand);
+			TempData["SuccessMessage"] = $"Added Brand.";
+			return RedirectToAction(nameof(Index));
         }
 
         // GET: CarBrands/Edit/5
@@ -92,12 +91,14 @@ namespace WebRentACar.Controllers
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            if (carBrand.Name.Length
+                 <= 100)
             {
                 try
                 {
-                    _context.Update(carBrand);
+                    var brand = _context.CarBrands.FirstOrDefault(x => x.Id == id);
+                    brand.Name = carBrand.Name;
+                    _context.Update(brand);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -117,21 +118,16 @@ namespace WebRentACar.Controllers
         }
 
         // GET: CarBrands/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete()
         {
-            if (id == null)
+
+            var carBrands = await _context.CarBrands.ToListAsync();
+            if (carBrands == null)
             {
                 return NotFound();
             }
 
-            var carBrand = await _context.CarBrands
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (carBrand == null)
-            {
-                return NotFound();
-            }
-
-            return View(carBrand);
+            return View(carBrands);
         }
 
         // POST: CarBrands/Delete/5
@@ -142,7 +138,14 @@ namespace WebRentACar.Controllers
             var carBrand = await _context.CarBrands.FindAsync(id);
             if (carBrand != null)
             {
+                var n = await _context.Cars.Where(x => x.Id == id).ToListAsync();
+				if (n.IsNullOrEmpty())
                 _context.CarBrands.Remove(carBrand);
+				else
+                {
+					TempData["SuccessMessage"] = $"There are cars with this brand, so you can't remove it.";
+					return View(await _context.CarBrands.ToListAsync());
+                }
             }
 
             await _context.SaveChangesAsync();

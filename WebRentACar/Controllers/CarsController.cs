@@ -35,7 +35,7 @@ namespace WebRentACar.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(int CarBrandId, int? Year, string? Model, int Limit)
+        public async Task<IActionResult> Index(int CarBrandId, string? Model, int Limit)
         {
             var cars = await _context.Cars.Include(c => c.CarBrand).Include(p => p.CarPictures).ToListAsync();
             if (ModelState.IsValid)
@@ -45,11 +45,6 @@ namespace WebRentACar.Controllers
                 if (CarBrandId > 0)
                 {
                     cars = cars.Where(c => c.CarBrand.Id == CarBrandId).ToList();
-                }
-
-                if (Year.HasValue)
-                {
-                    cars = cars.Where(c => c.Year == Year).ToList();
                 }
 
                 if (!string.IsNullOrEmpty(Model))
