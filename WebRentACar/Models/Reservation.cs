@@ -30,7 +30,7 @@ namespace WebRentACar.Models
 		public bool IsApproved { get; set; } 
 		public bool IsValidReservation()
 		{
-			return EndDate > StartDate;
+			return (EndDate >= StartDate);
 		}
 	}
 }

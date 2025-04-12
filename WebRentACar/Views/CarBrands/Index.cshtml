@@ -3,7 +3,21 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    /* Set background color of the whole page to light gray */
+    body {
+        background-color: #808080; /* Light gray color */
+        color: #333; /* Ensure text color is dark enough for readability */
+    }
 
+    /* Optional: You can style the content area separately if you want a white background for better contrast */
+    .container {
+        background-color: #ffffff; /* White background for content area */
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+</style>
 <h1>Index
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 </h1>
@@ -17,16 +31,9 @@
         </button>
     </div>
 }
-<p>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Popper.js (Required for Bootstrap tooltips, popovers, etc.) -->
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    
 
-    <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -51,5 +58,11 @@
 }
     </tbody>
 </table>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+	<!-- Popper.js (Required for Bootstrap tooltips, popovers, etc.) -->
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+
+	<!-- Bootstrap JS -->
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

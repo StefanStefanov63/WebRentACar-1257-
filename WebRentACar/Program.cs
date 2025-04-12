@@ -35,7 +35,7 @@ internal class Program
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
 		}
-		try { await SeedData.SeedingDbUsersAsync(app);}catch (Exception ex) { }
+		await SeedData.SeedingDbUsersAsync(app);
         
         app.UseHttpsRedirection();
 		app.UseStaticFiles();

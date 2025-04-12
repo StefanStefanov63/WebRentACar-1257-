@@ -3,12 +3,32 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    /* Set background color of the whole page to light gray */
+    body {
+        background-color: #808080; /* Light gray color */
+        color: #333; /* Ensure text color is dark enough for readability */
+    }
 
-<h1>Index</h1>
+    /* Optional: You can style the content area separately if you want a white background for better contrast */
+    .container {
+        background-color: #ffffff; /* White background for content area */
+        padding: 20px;
+        border-radius: 8px;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+</style>
+<h1>Index <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" /></h1>
+<Body>
+    @if (TempData["FailMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["FailMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
 <table class="table">
     <thead>
         <tr>
@@ -25,7 +45,7 @@
                 @Html.DisplayNameFor(model => model.EndDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsApproved)
+                Is Approved
             </th>
             <th></th>
         </tr>
@@ -34,10 +54,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Car.Model)
+                    @(item.Car.CarBrand.Name +" "+ item.Car.Model)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.StartDate)
@@ -46,14 +66,51 @@
                 @Html.DisplayFor(modelItem => item.EndDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsApproved)
+                @if(item.IsApproved)
+                    {
+                        @:Yes
+                    }
+                    else
+                    {
+                        @:No
+                    }
+
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <td>
+                        @if (item.IsApproved)
+                        {
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            if (User.IsInRole("Admin"))
+                            {   @: |
+                                <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a> @: |
+                                <a asp-action="UnApproveReservation" asp-route-id="@item.Id"> Unapprove </a>
+                            }
+                        }
+                        else
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> @: |
+                            <a asp-action="Details" asp-route-id ="@item.Id"> Details </a> @: |
+                            <a asp-action = "Delete" asp-route-id = "@item.Id" > Delete </a> @: |
+                            if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action = "ApproveReservation" asp-route-id = "@item.Id" > Approve </a>
+                            }
+                        }
+
+                                
+                       
             </td>
         </tr>
 }
     </tbody>
-</table>
+    </table>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- jQuery (required for Bootstrap's JS components) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap Bundle JS (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</Body>

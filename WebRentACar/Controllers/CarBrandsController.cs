@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using WebRentACar.Models;
 
 namespace WebRentACar.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CarBrandsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,7 +26,8 @@ namespace WebRentACar.Controllers
         // GET: CarBrands
         public async Task<IActionResult> Index()
         {
-            return View(await _context.CarBrands.ToListAsync());
+            var brands = await _context.CarBrands.ToListAsync();
+            return View(brands);
         }
 
         // GET: CarBrands/Details/5
@@ -118,10 +121,10 @@ namespace WebRentACar.Controllers
         }
 
         // GET: CarBrands/Delete/5
-        public async Task<IActionResult> Delete()
+        public async Task<IActionResult> Delete(int id)
         {
-
             var carBrands = await _context.CarBrands.ToListAsync();
+            ViewBag.id = id;
             if (carBrands == null)
             {
                 return NotFound();
@@ -138,12 +141,13 @@ namespace WebRentACar.Controllers
             var carBrand = await _context.CarBrands.FindAsync(id);
             if (carBrand != null)
             {
-                var n = await _context.Cars.Where(x => x.Id == id).ToListAsync();
+                var n = await _context.Cars.Where(x => x.CarBrandId == id).ToListAsync();
 				if (n.IsNullOrEmpty())
                 _context.CarBrands.Remove(carBrand);
 				else
                 {
 					TempData["SuccessMessage"] = $"There are cars with this brand, so you can't remove it.";
+					ViewBag.id = id;
 					return View(await _context.CarBrands.ToListAsync());
                 }
             }

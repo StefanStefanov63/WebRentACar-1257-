@@ -3,7 +3,21 @@
 @{
     ViewData["Title"] = "Delete";
 }
+<style>
+	/* Set background color of the whole page to light gray */
+	body {
+		background-color: #808080; /* Light gray color */
+		color: #333; /* Ensure text color is dark enough for readability */
+	}
 
+	/* Optional: You can style the content area separately if you want a white background for better contrast */
+	.container {
+		background-color: #ffffff; /* White background for content area */
+		padding: 20px;
+		border-radius: 8px;
+	}
+
+</style>
 <h1>
 	Delete
 		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
@@ -26,7 +40,14 @@
 			<select id="Id" name="Id" class="form-control">
 				@foreach (var CarBrand in Model)
 				{
-					<option value="@CarBrand.Id">@CarBrand.Name</option>
+					if(CarBrand.Id == ViewBag.id)
+					{
+						<option value="@CarBrand.Id" selected>@CarBrand.Name</option>
+					}
+					else
+					{
+						<option value="@CarBrand.Id" >@CarBrand.Name</option>
+					}
 				}
 
 			</select>

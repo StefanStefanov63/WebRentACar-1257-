@@ -23,45 +23,48 @@ namespace WebRentACar.Data
                         await roleManager.CreateAsync(new IdentityRole(role));
                     }
                 }
-
-                var adminUser = await userManager.FindByEmailAsync("admin@car.com");
-                if (adminUser == null)
-                {
-                    adminUser = new RentACarUser
-                    {
-                        UserName = "admin",
-                        Email = "admin@car.com",
-                        FirstName = "Admin",
-                        LastName = "User",
-                        EGN = "1234567890",
-                        PhoneNumber = "123-456-7890"
-                    };
-                    var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(adminUser, "Admin");
-                    }
-                }
-
-                var regularUser = await userManager.FindByEmailAsync("user@car.com");
-                if (regularUser == null)
-                {
-                    regularUser = new RentACarUser
-                    {
-                        UserName = "user",
-                        Email = "user@car.com",
-                        FirstName = "User",
-                        LastName = "Usero",
-                        EGN = "1234537840",
-                        PhoneNumber = "123-456-7830"
-                    };
-                    var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(regularUser, "User");
-                    }
-                }
                 context.Database.EnsureCreated();
+                if (!context.Users.Any())
+                {
+                    var adminUser = await userManager.FindByEmailAsync("admin@car.com");
+                    if (adminUser == null)
+                    {
+                        adminUser = new RentACarUser
+                        {
+                            UserName = "admin@car.com",
+                            Email = "admin@car.com",
+                            FirstName = "Admin",
+                            LastName = "User",
+                            EGN = "1234567890",
+                            PhoneNumber = "123-456-7890"
+                        };
+                        var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+                        if (result.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(adminUser, "Admin");
+                        }
+                    }
+
+                    var regularUser = await userManager.FindByEmailAsync("user@car.com");
+                    if (regularUser == null)
+                    {
+                        regularUser = new RentACarUser
+                        {
+                            UserName = "user@car.com",
+                            Email = "user@car.com",
+                            FirstName = "User",
+                            LastName = "Usero",
+                            EGN = "1234537840",
+                            PhoneNumber = "123-456-7830"
+                        };
+                        var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
+                        if (result.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(regularUser, "User");
+                        }
+                    }
+                }
+                
 
                 if (!context.CarBrands.Any())
                 {

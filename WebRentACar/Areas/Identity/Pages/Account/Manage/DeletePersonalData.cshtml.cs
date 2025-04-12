@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using WebRentACar.Data;
 using WebRentACar.Models;
 
 namespace WebRentACar.Areas.Identity.Pages.Account.Manage
@@ -18,16 +19,18 @@ namespace WebRentACar.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<RentACarUser> _userManager;
         private readonly SignInManager<RentACarUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+		private readonly ApplicationDbContext _db;
 
-        public DeletePersonalDataModel(
+		public DeletePersonalDataModel(
             UserManager<RentACarUser> userManager,
             SignInManager<RentACarUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger, ApplicationDbContext db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-        }
+			_db = db;
+		}
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -86,8 +89,13 @@ namespace WebRentACar.Areas.Identity.Pages.Account.Manage
                     return Page();
                 }
             }
-
-            var result = await _userManager.DeleteAsync(user);
+			var aLog = _db.Reservations.FirstOrDefault(x => x.UserId == user.Id && x.IsApproved == true && x.EndDate > DateTime.Now.Date);
+			if (aLog is not null)
+			{
+				ModelState.AddModelError(string.Empty, "User wasn't removed, becouse they have Approved Reservations, which havan't ended.");
+				return Page();
+			}
+			var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)
             {

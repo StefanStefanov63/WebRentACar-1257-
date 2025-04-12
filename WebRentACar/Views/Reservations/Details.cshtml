@@ -3,24 +3,39 @@
 @{
     ViewData["Title"] = "Details";
 }
+<style>
+    /* Set background color of the whole page to light gray */
+    body {
+        background-color: #808080; /* Light gray color */
+        color: #333; /* Ensure text color is dark enough for readability */
+    }
 
+    /* Optional: You can style the content area separately if you want a white background for better contrast */
+    .container {
+        background-color: #ffffff; /* White background for content area */
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+</style>
 <h1>Details</h1>
 
 <div>
     <h4>Reservation</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
+   
+    <dl class="row"> 
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Car)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Car.Model)
+        <dd class="col-sm-10">
+            <a asp-area="" asp-controller="Cars" asp-action="Details" asp-route-id="@Model.CarId">Details</a>
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.User)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
+            @Html.DisplayFor(model => model.User.UserName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.StartDate)
@@ -35,14 +50,29 @@
             @Html.DisplayFor(model => model.EndDate)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsApproved)
+            Is Approved
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsApproved)
+            @if (Model.IsApproved)
+            {
+                @:Yes
+            }
+            else
+            {
+                @:No
+            }
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> @: |
+        <a asp-action="Index">Back to List</a>
+    }
+    else
+    {
+        <a asp-action="SeeMyReservations">Back to List</a>
+    }
+    
 </div>
