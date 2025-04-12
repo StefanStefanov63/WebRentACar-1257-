@@ -119,6 +119,54 @@ namespace WebRentACar.Data
                     );
                     context.SaveChanges();
                 }
+                if (!context.CarPictures.Any())
+                {
+                    context.CarPictures.AddRange(
+                        new CarPicture { PictureUrl = "/uploads/98e4ed97-75d9-4af7-ae9e-237cd258ed18_wp8456061-881238823.jpg", CarId = 4 },
+                        new CarPicture { PictureUrl = "/uploads/15c806cd-90d7-4983-8430-41217c14a545_2021-audi-a6_100747118_h-4198157168.jpg", CarId = 4 },
+                        new CarPicture { PictureUrl = "/uploads/250e74df-0635-4ea0-a423-aa6127a74a7a_2021-Ford-Mustang-Mach-1-0-590574180.jpg", CarId = 2 }
+                    );
+                    context.SaveChanges();
+                }
+                if (!context.Reservations.Any())
+                {
+                    context.Reservations.AddRange(
+                        new Reservation
+                        {
+                            CarId = 4,
+                            UserId = context.Users.FirstOrDefault(x => x.UserName == "admin@car.com").Id,
+                            StartDate = new DateTime(2025, 4, 12),
+                            EndDate = new DateTime(2025, 5, 12),
+                            IsApproved = true
+                        },
+                        new Reservation
+                        {
+                            CarId = 4,
+                            UserId = context.Users.FirstOrDefault(x => x.UserName == "admin@car.com").Id,
+                            StartDate = new DateTime(2025, 4, 1),
+                            EndDate = new DateTime(2025, 4, 11),
+                            IsApproved = false
+                        },
+                        new Reservation
+                        {
+                            CarId = 2,
+                            UserId = context.Users.FirstOrDefault(x => x.UserName == "user@car.com").Id,
+                            StartDate = new DateTime(2025, 4, 1),
+                            EndDate = new DateTime(2025, 4, 4),
+                            IsApproved = true
+                        },
+                        new Reservation
+                        {
+                            CarId = 2,
+                            UserId = context.Users.FirstOrDefault(x => x.UserName == "user@car.com").Id,
+                            StartDate = new DateTime(2025, 4, 6),
+                            EndDate = new DateTime(2025, 4, 27),
+                            IsApproved = false
+                        }
+                    );
+
+                    context.SaveChanges();
+                }
             }
         }
     }
